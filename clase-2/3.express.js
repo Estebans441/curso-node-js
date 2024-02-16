@@ -1,7 +1,28 @@
 const express = require('express');
 const app = express();
 
+app.disable('x-powered-by');
+
 const PORT = process.env.PORT ?? 1234;
+
+// Middleware - Ejecuta una funcion antes de llegar a la ruta
+app.use((req, res, next) => {
+    console.log('Middleware');
+    // revisar cookies, headers, etc
+    if(req.method != 'POST') return next();
+    
+    let body = '';
+    req.on('data', chunk =>{
+        body += chunk.toString();
+    });
+
+    req.on('end', () => {
+        const data = JSON.parse(body);
+        data.timestamp = Date.now();
+        req.body = data;
+        next();
+    });
+});
 
 // GET
 app.get('/pokemon/ditto', (req, res) => {
@@ -13,20 +34,15 @@ app.get('/', (req, res) => {
     res.send('<h1>Hello World</h1>');
 });
 
-
 // POST
 app.post('/pokemon', (req, res) => {
-    let body = '';
-    req.on('data', chunk =>{
-        body += chunk.toString();
-    });
-
-    req.on('end', () => {
-        const data = JSON.parse(body);
-        data.timestamp = Date.now();
-        res.status(201).json(data);
-    });
+    res.status(200).json(req.body);
 })
+
+// 404 - Use para indicar que cualquier funcion que llegue a este punto no fue encontrada
+app.use((req, res) => {
+    res.status(404).send('<h1>Página no encontrada<h1>');
+});
 
 // LISTEN
 app.listen(PORT, () => {
