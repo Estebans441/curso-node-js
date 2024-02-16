@@ -1,0 +1,20 @@
+{
+  "name": "curso-node",
+  "version": "1.0.0",
+  "description": "Curso node gratini con Midu",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "curso",
+    "node",
+    "nodejs",
+    "midudev"
+  ],
+  "author": "Esteban Salazar",
+  "license": "ISC",
+  "dependencies": {
+    "picocolors": "1.0.0"
+  }
+}
