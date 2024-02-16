@@ -1,0 +1,13 @@
+### TRAER POKEMON
+GET http://localhost:1234/pokemon/ditto
+
+### CREAR POKEMON
+POST http://localhost:1234/pokemon
+Content-Type: application/json
+
+{
+  "name": "ditto",
+  "type": "normal"
+}
+
+### ACTUALIZAR POKEMON
