@@ -1,3 +1,6 @@
+### Hola mundo
+GET http://localhost:1234/
+
 ### TRAER POKEMON
 GET http://localhost:1234/pokemon/ditto
 
