@@ -24,6 +24,9 @@ app.use((req, res, next) => {
     });
 });
 
+// Resumen
+// app.use(express.json());
+
 // GET
 app.get('/pokemon/ditto', (req, res) => {
     const dittoJSON = require('./pokemon/ditto.json');
