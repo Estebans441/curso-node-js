@@ -26,18 +26,43 @@ const express = require('express'); // require --> commonJS
 const crypto = require('node:crypto');
 const movies = require('./movies.json');
 const {validateMovie, validatePartialMovie} = require('./schemas/movies');
+const cors = require('cors');
 
 const app = express();
 app.disable('x-powered-by'); // Deshabilita el header X-Powered-By
+
+// npx 
 
 app.get('/', (req, res) => {
     res.json({ message: 'Hello World' });
 });
 
 app.use(express.json()); // Middleware para parsear el body de la request
+app.use(cors({
+    origin: (origin, callback) => {
+        const ACCEPTED_ORIGINS = [
+            'http://localhost:8080',
+            'http://172.24.32.1:8080',
+            'http://192.168.0.10:8080',
+            'http://172.19.32.1:8080'
+        ];
+  
+      if (ACCEPTED_ORIGINS.includes(origin)) {
+        return callback(null, true)
+      }
+  
+      if (!origin) {
+        return callback(null, true)
+      }
+  
+      return callback(new Error('Not allowed by CORS'))
+    }
+  }))
 
 // Todos los recursos que sean movies se identifican con movies
 // Todas las peliculas
+
+
 app.get('/movies', (req, res) => {
     const { genre } = req.query;
     if(genre) {
@@ -82,6 +107,20 @@ app.post('/movies', (req, res) => {
 
     movies.push(newMovie); // no seria rest pero por ausencia de base de datos se hace asi
     res.status(201).json(newMovie);
+});
+
+// Borrar pelicula
+app.delete('/movies/:id', (req, res) => {    
+    const {id} = req.params;
+    const movieIndex = movies.findIndex((movie) => movie.id === id);
+    
+    if(movieIndex === -1) {
+        return res.status(404).json({ message: 'Movie not found' });
+    }
+    
+    movies.splice(movieIndex, 1);
+    
+    return res.json({ message: 'Movie deleted' });
 });
 
 // Actualizar pelicula
