@@ -22,7 +22,7 @@
         }
     </style>
     <script type="module">
-        fetch('http://192.168.0.10:1234/movies')
+        fetch('http://localhost:1234/movies')
             .then(response => response.json())
             .then(movies => {
                 const html = movies.map(movie => {

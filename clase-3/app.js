@@ -31,7 +31,7 @@ const cors = require('cors');
 const app = express();
 app.disable('x-powered-by'); // Deshabilita el header X-Powered-By
 
-// npx 
+// npx servor ./web
 
 app.get('/', (req, res) => {
     res.json({ message: 'Hello World' });
