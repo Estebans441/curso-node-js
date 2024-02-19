@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Clase 3</title>
+    <style>
+        article {
+            border: 1px solid #000;
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+        img {
+            height: auto;
+            width: 320px;
+            max-width: 100%;
+        }
+    </style>
+    <script type="module">
+        fetch('http://localhost:1234/movies')
+            .then(response => response.json())
+            .then(data => {
+                const html = movies.map(movie => {
+                    return `
+                    <article data-id="${movie.id}">
+                        <h2>${movie.title}</h2>
+                        <p>${movie.description}</p>
+                        <img src="${movie.poster}" alt="${movie.title}">
+                    </article>
+                    `
+            }).join('');
+        });
+    </script>
+  </head>
+  <body>
+    <h1>Clase 3</h1>
+    <p>Este es el contenido de la clase 3</p>
+    <main></main>
+  </body>
+</html>
