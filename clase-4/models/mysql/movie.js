@@ -1,0 +1,59 @@
+import mysql from 'mysql2/promise';
+
+const config = {
+    host : 'localhost',
+    user : 'root',
+    port : 3306,
+    password : 'pass',
+    database : 'movies_db'
+}
+
+const connection = await mysql.createConnection(config);
+
+export class MovieModel {
+    static async getAll ({ genre }){
+        if(genre){
+            const [genres] = await connection.query('SELECT id FROM genre WHERE LOWER(name) = ?;', [genre.toLowerCase()]);
+            if(genres.length === 0) return [];
+
+            const [{id}] = genres;
+
+            const [movies] = await connection
+            .query('SELECT movie.title, movie.year, movie.director, movie.duration, movie.poster, movie.rate, BIN_TO_UUID(movie.id) id FROM movie JOIN movie_genres ON movie.id = movie_genres.movie_id WHERE movie_genres.genre_id = ?;', id);
+            return movies;
+        }
+        const [movies] = await connection.query('SELECT title, year, director, duration, poster, rate, BIN_TO_UUID(id) id FROM movie;');
+        return movies;
+    }
+
+    static async getById ({ id }){
+        const [movies] = await connection.query('SELECT title, year, director, duration, poster, rate, BIN_TO_UUID(id) id FROM movie WHERE id = UUID_TO_BIN(?);', id);
+        return movies;
+    }
+
+    static async create ({ input }){
+        const { title, year, director, duration, poster, rate, genre } = input;
+        const [result] = await connection.query('INSERT INTO movie (title, year, director, duration, poster, rate) VALUES (?, ?, ?, ?, ?, ?);', [title, year, director, duration, poster, rate]);
+        const movieId = result.insertId;
+        const promises = genre.map(async g => {
+            let id = 0;
+            const [genres] = await connection.query('SELECT id FROM genre WHERE LOWER(name) = ?;', g.toLowerCase());
+            if(genres.length === 0) {
+                const [result] = await connection.query('INSERT INTO genre (name) VALUES (?);', g);
+                id = result.insertId;
+            }
+            else id = genres[0].id;
+            await connection.query('INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?);', [movieId, id]);
+        });
+        await Promise.all(promises);
+        return { result };
+    }    
+
+    static async delete ({ id }){
+
+    }
+
+    static async update ({ id, input }){
+    
+    }
+}
