@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import { randomUUID } from 'node:crypto';
 
 const config = {
     host : 'localhost',
@@ -33,8 +34,8 @@ export class MovieModel {
 
     static async create ({ input }){
         const { title, year, director, duration, poster, rate, genre } = input;
-        const [result] = await connection.query('INSERT INTO movie (title, year, director, duration, poster, rate) VALUES (?, ?, ?, ?, ?, ?);', [title, year, director, duration, poster, rate]);
-        const movieId = result.insertId;
+        const movieId = randomUUID();
+        const [result] = await connection.query('INSERT INTO movie (id, title, year, director, duration, poster, rate) VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?);', [movieId, title, year, director, duration, poster, rate]);
         console.log(result);
         const promises = genre.map(async g => {
             let id = 0;
@@ -44,10 +45,10 @@ export class MovieModel {
                 id = result.insertId;
             }
             else id = genres[0].id;
-            await connection.query('INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?);', [movieId, id]);
+            await connection.query('INSERT INTO movie_genres (movie_id, genre_id) VALUES (UUID_TO_BIN(?), ?);', [movieId, id]);
         });
         await Promise.all(promises);
-        return { result };
+        return { id: movieId, ...input};
     }    
 
     static async delete ({ id }){

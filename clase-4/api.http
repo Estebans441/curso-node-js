@@ -11,7 +11,7 @@ GET http://localhost:1234/movies?genre=mafia
 POST http://localhost:1234/movies
 Content-Type: application/json
 
-{  
+{
     "title": "The Godfather",
     "year": 1975,
     "director": "Francis Ford Coppola",
@@ -27,11 +27,11 @@ Content-Type: application/json
 
 
 ### Actualizar una pelicula
-PATCH http://localhost:1234/movies/04986507-b3ed-442c-8ae7-4c5df804f896
+PATCH http://localhost:1234/movies/0f31fb8c-5498-4fd9-80ce-685417df459d
 Content-Type: application/json
 
 { 
-    "year": 2012,
+    "year": 1975,
     "duration": 143
 }
 
