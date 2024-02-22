@@ -27,7 +27,7 @@ export class MovieModel {
     }
 
     static async getById ({ id }){
-        const [movies] = await connection.query('SELECT title, year, director, duration, poster, rate, BIN_TO_UUID(id) id FROM movie WHERE id = UUID_TO_BIN(?);', id);
+        const [movies] = await connection.query('SELECT title, year, director, duration, poster, rate, BIN_TO_UUID(id) id FROM movie WHERE BIN_TO_UUID(id) = ?;', id);
         return movies;
     }
 
@@ -35,6 +35,7 @@ export class MovieModel {
         const { title, year, director, duration, poster, rate, genre } = input;
         const [result] = await connection.query('INSERT INTO movie (title, year, director, duration, poster, rate) VALUES (?, ?, ?, ?, ?, ?);', [title, year, director, duration, poster, rate]);
         const movieId = result.insertId;
+        console.log(result);
         const promises = genre.map(async g => {
             let id = 0;
             const [genres] = await connection.query('SELECT id FROM genre WHERE LOWER(name) = ?;', g.toLowerCase());
@@ -50,10 +51,20 @@ export class MovieModel {
     }    
 
     static async delete ({ id }){
-
+        const [result] = await connection.query('DELETE FROM movie WHERE BIN_TO_UUID(id) = ?;', id);
+        return result.affectedRows > 0;
     }
 
-    static async update ({ id, input }){
-    
+    static async update ({ id, data }){
+        const [movies] = await connection.query('SELECT title, year, director, duration, poster, rate, BIN_TO_UUID(id) id FROM movie WHERE BIN_TO_UUID(id) = ?;', id);
+        
+        const updatedMovie = {
+            ...movies[0],
+            ...data
+        };
+
+        const { title, year, director, duration, poster, rate } = updatedMovie;
+        await connection.query('UPDATE movie SET title = ?, year = ?, director = ?, duration = ?, poster = ?, rate = ? WHERE BIN_TO_UUID(id) = ?;', [title, year, director, duration, poster, rate, id]);
+        return updatedMovie;
     }
 }
