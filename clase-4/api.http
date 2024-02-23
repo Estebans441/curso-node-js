@@ -36,5 +36,5 @@ Content-Type: application/json
 }
 
 ### Borrar una pelicula
-DELETE http://localhost:1234/movies/dcdd0fad-a94c-4810-8acc-5f108d3b18c3
+DELETE http://localhost:1234/movies/d40526e8-d76f-4d46-b59c-ec25d322718c
 ```
