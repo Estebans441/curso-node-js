@@ -5,24 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
     <script type="module">
+        // En JavaScript, importamos la librería de Socket.IO
         import { io } from 'https://cdn.socket.io/4.3.2/socket.io.esm.min.js';
 
-        const socket = io();
+        // Función para obtener el nombre de usuario o generar uno aleatorio
+        const getUsername = async () => {
+          const username = localStorage.getItem('username');
+          if (username) return username;
+          const res = await fetch('https://random-data-api.com/api/users/random_user');
+          const { username : randomUsername } = await res.json();
+          localStorage.setItem('username', randomUsername);
+          return randomUsername;
+        }
 
+        // Create a new socket connection with auth token and username
+        const socket = io({
+            auth: {
+              token : 'my-token',
+              username : await getUsername(),
+              serverOffset: 0
+            }
+        });
+
+        // Elementos del DOM
         const form = document.getElementById('form');
         const input = document.getElementById('input');
         const messages = document.getElementById('messages');
+        const username = document.getElementById('username');
+        username.textContent = socket.auth.username;
 
-        socket.on('chat message', (msg) => {
+        // Se escucha el evento 'chat message' y muestra el mensaje en el chat
+        socket.on('chat message', (msg, serverOffset, username) => {
             const item = document.createElement('li');
-            item.textContent = msg;
+            item.textContent = `${username}: ${msg}`;
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            socket.auth.serverOffset = serverOffset;
+            messages.scrollTop = messages.scrollHeight;
         });
         
-        form.addEventListener('submit', function(event) {
+        // Se envia un mensaje al servidor
+        form.addEventListener('submit', (event) => {
             event.preventDefault();
-            
             if (input.value) {
                 socket.emit('chat message', input.value);
                 input.value = '';
@@ -50,10 +73,23 @@
           grid-template-rows: 1fr;
         }
 
+        #header {
+          top: 0;
+          left: 30px;
+          height: 48px;
+          width: 350px;
+          padding: 4px;
+          position: absolute;
+        }
+
         #messages {
+          overflow-y: scroll;
           list-style-type: none;
           margin: 0;
           padding: 0;
+          height: 100%;
+          scroll-behavior: smooth;
+          padding-bottom: 48px;
         }
 
         #messages > li {
@@ -109,6 +145,10 @@
     </style>
   </head>
   <body>
+    <section id="header">
+      <h1>Chat</h1>
+      <p>Username: <strong id="username"></strong></p>
+    </section>
     <section id="chat">
         <ul id="messages"></ul>
         <form id="form">
